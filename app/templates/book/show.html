@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<br>
 <div class="container">
 
     <h2 class="my-3 text-center text-uppercase font-weight-bold">Просмотр книги</h2>
@@ -37,6 +38,31 @@
         <div class="course-logo" style="background-image: url({{ img }});">
         </div>
     </div>
+    <br><br>
+
+    {% if reviews %}
+    <div class="reviews">
+        <h3>Рецензии пользователей</h3>
+        {% for review in reviews %}
+            <div class="d-flex flex-column mt-2">
+                <hr>
+                <div class="d-flex">
+                    <div class="flex-grow-1 ms-3 col-10">
+                        <h5>{{ review.get_user() }}: Оценка {{ review.rating }}</h5>
+                        <p><span>{{ review.text | safe }}</span></p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+    {% if current_user.is_authenticated and not review %}
+    <div class="text-center my-3">
+        <a class="btn btn-lg btn-primary" href="{{ url_for('book.review', book_id=book.id) }}">Написать рецензию</a>
+    </div>
+    {% endif %}
 
     {% if reviews %}
     {% for review in reviews %}
@@ -54,6 +80,44 @@
     {% endif %}
     {% endfor %}
     {% endif %}
+
+    {% if current_user.is_authenticated %}
+    <!-- Add to Collection Button -->
+    <div class="text-center my-3">
+        <button type="button" class="btn btn-lg btn-secondary" data-toggle="modal" data-target="#addToCollectionModal">Добавить в подборку</button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add to Collection Modal -->
+<div class="modal fade" id="addToCollectionModal" tabindex="-1" role="dialog" aria-labelledby="addToCollectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('collection.add_to_collection') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addToCollectionModalLabel">Добавить в подборку</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="book_id" value="{{ book.id }}">
+                    <div class="form-group">
+                        <label for="collection">Выберите подборку:</label>
+                        <select class="form-control" id="collection" name="collection_id">
+                            {% for collection in current_user.collections %}
+                            <option value="{{ collection.id }}">{{ collection.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

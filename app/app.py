@@ -1,13 +1,12 @@
 import math
-from flask import Flask, render_template, request, abort, send_from_directory, redirect
+from flask import Flask, Blueprint, render_template, request, abort, send_from_directory, redirect
 from flask_login import current_user, login_required
 from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import distinct, desc
+
 import markdown
-
-
 
 app = Flask(__name__)
 application = app
@@ -29,9 +28,11 @@ migrate = Migrate(app, db)
 from auth import bp as auth_bp, init_login_manager
 from book import bp as book_bp
 from tools import BooksFilter
+from routes.collections import bp as collection_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(book_bp)
+app.register_blueprint(collection_bp)
 
 init_login_manager(app)
 
@@ -94,6 +95,26 @@ def reviews():
 
     return render_template('reviews/reviews.html', reviews=markdown_comments)
 
+@app.route('/review/<int:book_id>', methods=['GET', 'POST'])
+@login_required
+def review(book_id):
+    book = Book.query.get(book_id)
+    if request.method == 'POST':
+        text = request.form.get('review')
+        mark = int(request.form.get('mark'))
+        review = Review(rating=mark, text=text, book_id=book_id, user_id=current_user.get_id(), status_id=2)  # status_id=2 для автоматического утверждения
+        book.rating_num += 1
+        book.rating_sum += int(review.rating)
+        
+        db.session.add(review)
+        db.session.commit()
+        flash(f'Отзыв успешно добавлен!', 'success')  # Уведомление об успешном добавлении отзыва
+        return redirect(url_for('book.show', book_id=book.id))  # Перенаправление на страницу просмотра книги
+    if request.method == 'GET':
+        return render_template('book/review.html', book=book)  # Отображение формы добавления отзыва
+
+
+
 @app.route('/reviewmoderation')
 @login_required
 def reviews_moder():
@@ -129,4 +150,63 @@ def check_review(review_id):
 
     return render_template("reviews/edit.html", review_id=review_id, user=get_user(), rating=rating, text=text, status=status)
 
+@app.route('/checkreview/aprove/<review_id>', methods=['GET', 'POST'])
+@login_required
+def aprove(review_id):
+    db.session.query(Review).filter(Review.id == review_id).update({'status_id': 2})
+    db.session.commit()
+    return redirect(url_for('reviews_moder'))
     
+@app.route('/checkreview/reject/<review_id>', methods=['GET', 'POST'])
+@login_required
+def reject(review_id):
+    db.session.query(Review).filter(Review.id == review_id).update({'status_id': 3})
+    db.session.commit()
+    return redirect(url_for('reviews_moder'))
+
+# # Blueprint для коллекций
+# collections_bp = Blueprint('collections', __name__, url_prefix='/collection')
+
+# @collections_bp.route('/collections')
+# def show_collections():
+#     # Логика для отображения коллекций
+#     return render_template('collections/collections.html')
+
+# # Регистрация Blueprint в основном приложении
+# app.register_blueprint(collections_bp)
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
+# collection_bp = Blueprint('collection', __name__, url_prefix='/collection')
+
+# @collection_bp.route('/my_collections')
+# @login_required
+# def my_collections():
+#     user_collections = Collection.query.filter_by(user_id=current_user.id).all()
+#     return render_template('collections/collections.html', collections=user_collections)
+
+# @collection_bp.route('/add_collection', methods=['POST'])
+# @login_required
+# def add_collection():
+#     name = request.form.get('name')
+#     if name:
+#         new_collection = Collection(name=name, user_id=current_user.id)
+#         db.session.add(new_collection)
+#         db.session.commit()
+#         flash('Подборка успешно добавлена!', 'success')
+#     else:
+#         flash('Введите название подборки!', 'danger')
+#     return redirect(url_for('collection.my_collections'))
+
+# @collection_bp.route('/delete_collection/<int:collection_id>', methods=['POST'])
+# @login_required
+# def delete_collection(collection_id):
+#     collection = Collection.query.get(collection_id)
+#     if collection.user_id == current_user.id:
+#         db.session.delete(collection)
+#         db.session.commit()
+#         flash('Подборка успешно удалена!', 'success')
+#     else:
+#         flash('Вы не можете удалить эту подборку!', 'danger')
+#     return redirect(url_for('collection.my_collections'))

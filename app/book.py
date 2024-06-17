@@ -11,6 +11,7 @@ bp = Blueprint('book', __name__, url_prefix='/book')
 from models import Genre, Book, Books_has_Genres, Cover, Review
 from tools import ImageSaver
 
+
 @bp.route('/new', methods=['GET', 'POST'])
 @check_rights('new')
 def new():
@@ -151,10 +152,10 @@ def review(book_id):
         
         db.session.add(review)
         db.session.commit()
-        flash(f'Отзыв был успешно добавлен на модерацию!', 'success')
+        flash(f'Отзыв был успешно добавлен!', 'success')
         return redirect(url_for('book.show', book_id=book.id))
     if request.method == 'GET':
-        return render_template('reviews/edit.html', book=book)
+        return render_template('book/review.html', book=book)
 
     
 

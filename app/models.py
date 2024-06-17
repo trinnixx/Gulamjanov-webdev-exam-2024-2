@@ -1,3 +1,5 @@
+# models.py
+
 from app import db
 import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
@@ -32,6 +34,26 @@ class Books_has_Genres(db.Model):
 
     book = db.relationship('Book')
     genre = db.relationship('Genre')
+
+class Collection(db.Model):
+    __tablename__ = 'collections'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('collections', lazy=True))
+    # books = db.relationship('Book', backref=db.backref('collections', lazy=True))
+
+    def __repr__(self):
+        return f'<Collection: {self.name}>'
+
+class CollectionBookAssociation(db.Model):
+    __tablename__ = 'collection_book_association'
+    id = db.Column(db.Integer, primary_key=True)
+    collection_id = db.Column(db.Integer, db.ForeignKey('collections.id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
+    collection = db.relationship('Collection', backref=db.backref('books', lazy=True))
+    book = db.relationship('Book', backref=db.backref('collections', lazy=True))
+
 
 class Book(db.Model):
     __tablename__ = 'books'
@@ -148,3 +170,5 @@ class Review(db.Model):
     @property
     def is_ok(self):
         return self.status_id == 2
+
+

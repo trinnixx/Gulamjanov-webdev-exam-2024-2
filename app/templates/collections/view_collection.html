@@ -1,0 +1,22 @@
+<!-- templates/collections/view_collection.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<br><br>
+
+<div class="container">
+    <h1>Подборка: {{ collection.name }}</h1>
+    <br>
+    <ul class="list-group">
+        {% for book in books %}
+        <li class="list-group-item">
+
+            <a href="{{ url_for('book.show', book_id=book.book_id) }}">{{ book.book.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('collection.my_collections') }}" class="btn btn-secondary mt-3">Назад к подборкам</a>
+</div>
+
+
+{% endblock %}

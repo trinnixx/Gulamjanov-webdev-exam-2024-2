@@ -1,0 +1,60 @@
+<!-- templates/collections/collections.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<br><br>
+<div class="container">
+    <h1>Мои подборки</h1>
+    <table class="table border">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Количество книг</th>
+                <th>Дейстрвие</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for collection in collections %}
+            <tr>
+                <td>{{ collection.name }}</td>
+                <td>{{ collection.books|length }}</td>
+                <td>
+				        <form action="{{ url_for('collection.delete_collection', collection_id=collection.id) }}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить эту подборку?');" style="display: inline;">
+				        	<a href="{{ url_for('collection.view_collection', collection_id=collection.id) }}" class="btn btn-primary">Посмотреть</a>
+				            <input type="hidden" name="_method" value="DELETE">
+				            <button type="submit" class="btn btn-danger">Удалить подборку</button>
+				        </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button class="btn btn-success" data-toggle="modal" data-target="#addCollectionModal">Добавить подборку</button>
+</div>
+
+<!-- Add Collection Modal -->
+<div class="modal fade" id="addCollectionModal" tabindex="-1" role="dialog" aria-labelledby="addCollectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCollectionModalLabel">Новая подборка</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{{ url_for('collection.add_collection') }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="collection-name">Название подборки</label>
+                        <input type="text" class="form-control" id="collection-name" name="name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
