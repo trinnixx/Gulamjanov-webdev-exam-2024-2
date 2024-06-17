@@ -72,6 +72,36 @@ CREATE TABLE `books_has_genres` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `collection_book_association`
+--
+
+DROP TABLE IF EXISTS `collection_book_association`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `collection_book_association` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `collection_id` int(11) NOT NULL,
+  `book_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `collections`
+--
+
+DROP TABLE IF EXISTS `collections`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `collections` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `covers`
 --
 
@@ -121,9 +151,9 @@ CREATE TABLE `reviews` (
   KEY `fk_reviews_user_id_users` (`user_id`),
   KEY `fk_reviews_status_id_statuses` (`status_id`),
   CONSTRAINT `fk_reviews_book_id_books` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_reviews_status_id_statuses` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_reviews_status_id_statuses` FOREIGN KEY (`status_id`) REFERENCES `test` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_reviews_user_id_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -142,13 +172,13 @@ CREATE TABLE `roles` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `statuses`
+-- Table structure for table `test`
 --
 
-DROP TABLE IF EXISTS `statuses`;
+DROP TABLE IF EXISTS `test`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `statuses` (
+CREATE TABLE `test` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status_name` varchar(25) NOT NULL,
   PRIMARY KEY (`id`)
@@ -185,4 +215,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-06-15 23:53:33
+-- Dump completed on 2024-06-17 20:01:35
